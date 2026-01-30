@@ -10,7 +10,7 @@ Person(user, "User", "A user of the Cinema Abyss system")
 System(Cinema, "Cinema", "Система Cinema Abyss")
 
 System_Boundary(Cinema, "Cimema abyss") {
-  Container(WebApp, "Web Application", "Go", "Взаимодействие с пользователями")
+  Container(WebApp, "Web Application", "Go", "Браузеры, mobile apps, notebooks")
   
   Container(Database, "Database", "PostgreSQL", "Stores user, movies metadata, etc")
 
@@ -40,7 +40,9 @@ Rel(Proxy, Subscriptions, "Подписки")
 Rel(Proxy, UserPreferences, "Избранное")
 
 Rel(WebApp, Proxy, "API calls")
-Rel(Movies, Database, "Stores users and data")
+Rel(Movies, Database, "Stores movies metadata")
+Rel(Subscriptions, Database, "Stores subscriptions")
+Rel(UserPreferences, Database, "Stores user preferences")
 Rel(UserProfile, payment, "Sends payment data")
 Rel(UserPreferences, Adviser, "Sends user preferences")
 Rel(Adviser, Advicehandler,  "Sends recommendations")
