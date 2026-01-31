@@ -264,7 +264,9 @@ kubectl get pods -n cinemaabyss
 
   - Вызвал 
 https://cinemaabyss.example.com/api/movies
-и приложите скриншот развертывания helm и вывода https://cinemaabyss.example.com/api/movies
+
+
+ - приложите скриншот развертывания helm и вывода https://cinemaabyss.example.com/api/movies
 
 **![Helm](screenshots/HelmInstall.png)**
 
@@ -282,13 +284,13 @@ helm install istio-base istio/base -n istio-system --set defaultRevision=default
 helm install istio-ingressgateway istio/gateway -n istio-system
 helm install istiod istio/istiod -n istio-system --wait
 
-helm install cinemaabyss .\src\kubernetes\helm --namespace cinemaabyss --create-namespace
+helm install cinemaabyss ./src/kubernetes/helm --namespace cinemaabyss --create-namespace
 
 kubectl label namespace cinemaabyss istio-injection=enabled --overwrite
 
 kubectl get namespace -L istio-injection
 
-kubectl apply -f .\src\kubernetes\circuit-breaker-config.yaml -n cinemaabyss
+kubectl apply -f ./src/kubernetes/circuit-breaker-config.yaml -n cinemaabyss
 
 ```
 
@@ -308,7 +310,7 @@ kubectl exec -n cinemaabyss $FORTIO_POD -c fortio -- fortio load -c 50 -qps 0 -n
 Например,
 
 ```bash
-kubectl exec -n cinemaabyss fortio-deploy-b6757cbbb-7c9qg  -c fortio -- fortio load -c 50 -qps 0 -n 500 -loglevel Warning http://movies-service:8081/api/movies
+kubectl exec -n cinemaabyss fortio-deploy-5c948d95cf-8968d  -c fortio -- fortio load -c 50 -qps 0 -n 500 -loglevel Warning http://movies-service:8081/api/movies
 ```
 
 Вывод будет типа такого
@@ -323,7 +325,7 @@ Code 503 : 399 (79.8 %)
 Можно еще проверить статистику
 
 ```bash
-kubectl exec -n cinemaabyss fortio-deploy-b6757cbbb-7c9qg -c istio-proxy -- pilot-agent request GET stats | grep movies-service | grep pending
+kubectl exec -n cinemaabyss fortio-deploy-5c948d95cf-8968d -c istio-proxy -- pilot-agent request GET stats | grep movies-service | grep pending
 ```
 
 И там смотрим 
@@ -333,7 +335,9 @@ cluster.outbound|8081||movies-service.cinemaabyss.svc.cluster.local;.upstream_rq
 You can see 21 for the upstream_rq_pending_overflow value which means 21 calls so far have been flagged for circuit breaking.
 ```
 
-Приложите скриншот работы circuit breaker'а
+Cкриншот работы circuit breaker'а:
+
+![screenshot](screenshots/CircuitBreaker.png)
 
 Удаляем все
 ```bash

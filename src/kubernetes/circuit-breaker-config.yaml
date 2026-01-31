@@ -1,0 +1,12 @@
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: movies-service-cb
+spec:
+  host: movies-service
+  trafficPolicy:
+    outlierDetection:
+      consecutive5xxErrors: 7        # 7 ошибок подряд
+      interval: 5s                    # проверка каждые 5 секунд
+      baseEjectionTime: 30s           # минимальное время изоляции
+      maxEjectionPercent: 50          # максимум 50% хостов можно изолировать

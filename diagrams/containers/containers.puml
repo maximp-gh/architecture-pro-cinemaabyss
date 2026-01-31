@@ -5,7 +5,7 @@ top to bottom direction
 
 !includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
 
-Person(user, "User", "A user of the Cinema Abyss system")
+Person(User, "User", "A user of the Cinema Abyss system")
 
 System(Cinema, "Cinema", "Система Cinema Abyss")
 
@@ -14,10 +14,10 @@ System_Boundary(Cinema, "Cimema abyss") {
   
   Container(Database, "Database", "PostgreSQL", "Stores user, movies metadata, etc")
 
-  Container(Proxy, "Proxy", "Go", "API AppGateway")
+  Container(Proxy, "Gateway", "Go", "API Gateway")
   Container(AuthControl, "AuthControl", "Go", "Авторизация")
   Container(Movies, "Movies", "Go", "Фильмы")
-  Container(Events, "Events", "Go", "События")
+  Container(Events, "AsyncEventBroker", "Go", "События/Ответы")
   Container(UserProfile, "UserProfile", "Go", "Профили пользователей")
   Container(UserPreferences, "UserPreferences", "Go", "Избранное")
   Container(Subscriptions, "Subscriptions", "Go", "Подписки")
@@ -29,22 +29,22 @@ System_Boundary(Cinema, "Cimema abyss") {
 System_Ext(Adviser, "Recommendation System", "Recommendation System")
 System_Ext(payment,"Payment System", "Payment processing")
 
-Rel(user, WebApp, "Add/Control devices. Watch telemetry.")
-
-
+Rel(User, WebApp, "Фильмы")
 Rel(Proxy, AuthControl, "Проверка авторизации пользователя")
-Rel(Proxy, Movies, "Authorisation")
+Rel(Events, Movies, "Фильмы")
 Rel(Proxy, Events, "События")
-Rel(Proxy, UserProfile, "Пользователи")
-Rel(Proxy, Subscriptions, "Подписки")
-Rel(Proxy, UserPreferences, "Избранное")
+Rel(Events, UserProfile, "Пользователи")
+Rel(Events, Subscriptions, "Подписки")
+Rel(Events, UserPreferences, "Избранное")
+Rel(Events, Proxy, "Updates")
 
 Rel(WebApp, Proxy, "API calls")
 Rel(Movies, Database, "Stores movies metadata")
 Rel(Subscriptions, Database, "Stores subscriptions")
 Rel(UserPreferences, Database, "Stores user preferences")
+Rel(UserProfile, Database, "Stores users")
 Rel(UserProfile, payment, "Sends payment data")
 Rel(UserPreferences, Adviser, "Sends user preferences")
 Rel(Adviser, Advicehandler,  "Sends recommendations")
-Rel(Advicehandler, WebApp, "Shows recommendations")
+Rel(Advicehandler, Events, "Shows recommendations")
 @enduml

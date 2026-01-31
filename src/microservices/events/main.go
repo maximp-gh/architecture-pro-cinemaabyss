@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"log"
-	"fmt"
+	//"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -51,7 +51,10 @@ func main() {
 	go ReadkafkaMessages()
 
 	log.Printf("Starting Events service on port %s", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Println(http.ListenAndServe(":"+port, nil))
+	log.Printf("Stoppin Events service on port %s", port)
+	
+	time.Sleep(5 *time.Second)
 }
 
 
@@ -83,8 +86,16 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 
 func ReadkafkaMessages() {
 	for {
-    	consumeEvent()
+		select {
+        case <-context.Background().Done():
+			break
+        default:
+			if consumeEvent() != nil {
+				time.Sleep(1 * time.Second)
+			}
+        }
 	}
+	log.Println ("Event Service: Reading loop has finished")
 }
 
 
@@ -150,7 +161,7 @@ func produceEvent (text string) error {
 	if err != nil {
 		log.Println("Ошибка при отправке:", err)
 	} else {
-		fmt.Println("Сообщение отправлено.")
+		log.Println("Сообщение отправлено.")
 	}
 	return err
 }
@@ -159,9 +170,8 @@ func consumeEvent () error {
 	msg, err := reader.ReadMessage(context.Background())
 	if err != nil {
 		log.Println("Ошибка при получении:", err)
-		time.Sleep(1 * time.Second)
 	} else {
-		fmt.Println("Получено сообщение: ", string(msg.Value))
+		log.Println("Получено сообщение: ", string(msg.Value))
 	}
 	return err
 }
