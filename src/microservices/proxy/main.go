@@ -56,10 +56,19 @@ func handleMovies(w http.ResponseWriter, r *http.Request) {
 	//Feature toggle
 	grdMigration, _ := strconv.ParseBool (os.Getenv("GRADUAL_MIGRATION") )
 	procents, _ := strconv.ParseInt (os.Getenv("MOVIES_MIGRATION_PERCENT"), 10, 64)
-	log.Printf ("ENVIRONMENT: %d, %d", grdMigration, procents)
-	if grdMigration && procents > 0 {
+
+	if !grdMigration || procents >= 100 {
+		//gradual migration is off
+		log.Printf ("Full Migration to movies is enabled: %t, %d", grdMigration, procents)
+		forwardRequest (w, r, mov_url)
+	} else if procents <= 0 {
+		procents = 0 // migration is disabled at all
+		log.Printf ("Migration to movies is disabled: %t, %d", grdMigration, procents)
+		route2Monolith (w, r)
+	} else  { // means grdMigration is true && 100 > percent > 0
+		log.Printf ("Gradual migration to movies is enabled: %t, %d", grdMigration, procents)
 		totNumReq++
-		if (numReqMovie+1) * (100 / uint64(procents)) > totNumReq 	{
+		if (numReqMovie+1) *100  > totNumReq * uint64(procents) 	{
 			route2Monolith (w, r)
 		} else {
 			numReqMovie += 1
